@@ -1,0 +1,290 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="theme-color" content="#efece1" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#0a0c10" media="(prefers-color-scheme: dark)">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Dashers Finance Manager">
+
+  <!-- Enhanced Viewport for iOS -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, shrink-to-fit=no">
+  <meta name="color-scheme" content="light dark">
+
+  <!-- Apple splash screens: previously all five of these pointed at the same
+       100x100 splash.png, which is not a real splash image for any of these
+       devices — iOS silently ignores a startup image that doesn't match the
+       declared resolution, so the launch screen was just blank/white on
+       every iPhone. Replaced with correctly-sized images per device. -->
+  <link rel="apple-touch-startup-image" href="assets/icons/splash/splash-1125x2436.png" media="(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3)">
+  <link rel="apple-touch-startup-image" href="assets/icons/splash/splash-1284x2778.png" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3)">
+  <link rel="apple-touch-startup-image" href="assets/icons/splash/splash-1170x2532.png" media="(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3)">
+  <link rel="apple-touch-startup-image" href="assets/icons/splash/splash-1284x2778.png" media="(device-width: 428px) and (device-height: 926px) and (-webkit-device-pixel-ratio: 3)">
+  <link rel="apple-touch-startup-image" href="assets/icons/splash/splash-750x1334.png" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2)">
+  <link rel="apple-touch-startup-image" href="assets/icons/splash/splash-1179x2556.png" media="(device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 3)">
+  <link rel="apple-touch-startup-image" href="assets/icons/splash/splash-1290x2796.png" media="(device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3)">
+  <title>Dashers Finance Manager</title>
+
+  <!-- Bug fix: a hardcoded <base href="/dashers-finance-manager/"> used to be
+       here, which only works when served from exactly that GitHub Pages
+       subpath. It broke every relative asset (js/app.js, css/styles.css,
+       manifest, icons) when run locally or from any other host/path, which
+       is why navigation and everything else 404'd. All paths already use
+       "./" so no <base> tag is needed at all. -->
+
+  <link rel="manifest" href="./manifest.json">
+  <link rel="stylesheet" href="./css/styles.css" />
+  <!-- Icons: each sizes= now points at a PNG actually saved at that
+       resolution. Previously every apple-touch-icon (152/167/180) linked to
+       icon-192.png regardless of its declared size, and icon-180.png on disk
+       was mislabeled — really only 100x100 — so iOS fell back to a blurry,
+       incorrectly-cropped home-screen icon. -->
+  <link rel="icon" href="./assets/icons/icon-192.png">
+  <link rel="apple-touch-icon" href="./assets/icons/icon-180.png">
+  <link rel="apple-touch-icon" sizes="152x152" href="./assets/icons/icon-152.png">
+  <link rel="apple-touch-icon" sizes="167x167" href="./assets/icons/icon-167.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="./assets/icons/icon-180.png">
+
+  <meta name="format-detection" content="telephone=no">
+
+  <!-- Charts (local) -->
+  <script src="js/vendor/chart.umd.min.js"></script>
+
+  <!-- Restore the saved dark/light preference immediately, before any CSS
+       paints or any chart renders. Previously the data-theme attribute was
+       only ever set from inside the Settings page's own init code, so a
+       fresh load/reload always started in light mode (and any chart drawn
+       before the user happened to visit Settings used Chart.js's default
+       colors, not the app's) regardless of what was saved. -->
+  <script>
+    (function () {
+      var pref = localStorage.getItem('theme');
+      var theme = pref === 'dark' || pref === 'light'
+        ? pref
+        : (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      document.documentElement.setAttribute('data-theme', theme);
+      try { var ms = document.querySelectorAll('meta[name="theme-color"]'); for (var i = 0; i < ms.length; i++) { if (i) { ms[i].remove(); } else { ms[i].removeAttribute('media'); ms[i].setAttribute('content', theme === 'dark' ? '#0a0c10' : '#efece1'); } } } catch (e) {}
+    })();
+  </script>
+
+  <script type="module" src="./js/app.js"></script>
+
+  <!-- iOS PWA Detection -->
+  <script>
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    if (isIOS) {
+      document.documentElement.classList.add('ios-device');
+    }
+  </script>
+</head>
+<body>
+  <div id="splashScreen">
+    <div class="splash-inner">
+      <img src="assets/icons/icon-192.png" alt="Logo">
+      <h1>Dashers Finance Manager</h1>
+      <div class="spinner"></div>
+    </div>
+  </div>
+
+
+
+
+  <header>
+    <button id="mobileNavToggle" class="hamburger-btn" aria-label="Open navigation menu" aria-expanded="false" aria-controls="mobileNavDrawer">
+      <span></span><span></span><span></span>
+    </button>
+    <h1>Dashers Finance Manager</h1>
+    <div class="header-status">
+      <span id="connectionStatus" title="Online">🟢</span>
+      <span id="familySyncIndicator" title="Family Sync" style="display:none; margin-left:6px;"></span>
+    </div>
+    <button id="btnTheme" class="theme-toggle" type="button" aria-label="Switch to dark mode" title="Switch to dark mode" aria-pressed="false"><span class="theme-icon" aria-hidden="true">🌙</span></button>
+    <div class="header-actions">
+      <button id="btnExport">Backup Data</button>
+      <button id="btnImport">Restore Data</button>
+      <button id="btnGuide" type="button" data-open-guide="tour" title="Take a tour of every page, or re-run setup">🧭 Guide</button>
+    </div>
+    <div id="branchIndicator" style="display:none; 
+    background-color: #f39c12; 
+    color: white; 
+    text-align: center; 
+    padding: 5px; 
+    font-weight: bold; 
+    position: fixed; 
+    top: 0; 
+    left: 0; 
+    right: 0; 
+    z-index: 10000;">
+    ⚠️ DEVELOPMENT VERSION ⚠️
+    </div>
+  </header>
+
+  <!-- Populated at runtime from js/navItems.js (see js/renderNav.js) so this
+       and the mobile drawer's #mobileNavList are always in sync — previously
+       these were two hand-typed copies of the same list that had already
+       drifted apart (Settings was in a different position in each). -->
+  <nav>
+    <ul id="mainNavList"></ul>
+  </nav>
+
+  <div id="mobileNavOverlay" class="mobile-nav-overlay"></div>
+  <aside id="mobileNavDrawer" class="mobile-nav-drawer" aria-hidden="true">
+    <div class="mobile-nav-drawer-header">
+      <span>Menu</span>
+      <button id="mobileNavClose" class="mobile-nav-close" aria-label="Close navigation menu">✕</button>
+    </div>
+    <ul id="mobileNavList"></ul>
+    <ul class="mobile-nav-actions">
+      <li class="mobile-nav-divider"></li>
+      <li><button type="button" id="mobileNavBackup" class="mobile-nav-action"><span class="icon">💾</span><span class="label">Backup Data</span></button></li>
+      <li><button type="button" id="mobileNavGuide" class="mobile-nav-action" data-open-guide="tour"><span class="icon">🧭</span><span class="label">Tour &amp; setup guide</span></button></li>
+      <li><button type="button" id="mobileNavRestore" class="mobile-nav-action"><span class="icon">📥</span><span class="label">Restore Data</span></button></li>
+    </ul>
+  </aside>
+
+  <main id="mainContent"></main>
+
+  <!-- Bottom Nav -->
+  <nav class="bottom-nav" id="bottomNav">
+    <a href="#finance-overview" data-view="finance-overview" class="nav-item active">
+      <span class="icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/><path d="M3 10a2 2 0 0 1 .709-1.528l7-6a2 2 0 0 1 2.582 0l7 6A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></span>
+      <span class="label">Home</span>
+    </a>
+    <a href="#transactions" data-view="transactions" class="nav-item">
+      <span class="icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1"/><path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4"/></svg></span>
+      <span class="label">Finance</span>
+    </a>
+    <a href="#reports" data-view="reports" class="nav-item">
+      <span class="icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v16a2 2 0 0 0 2 2h16"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg></span>
+      <span class="label">Reports</span>
+    </a>
+    <a href="#properties" data-view="properties" class="nav-item">
+      <span class="icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 12h4"/><path d="M10 8h4"/><path d="M14 21v-3a2 2 0 0 0-4 0v3"/><path d="M6 10H4a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-2"/><path d="M6 21V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v16"/></svg></span>
+      <span class="label">Properties</span>
+    </a>
+    <a href="#settings" data-view="settings" class="nav-item">
+      <span class="icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915"/><circle cx="12" cy="12" r="3"/></svg></span>
+      <span class="label">Settings</span>
+    </a>
+  </nav>
+
+  <!-- PWA Installation Banner -->
+  <div id="installBanner" class="install-banner hidden">
+    <div class="install-banner-content">
+      <span class="install-icon">📱</span>
+      <div class="install-text">
+        <strong>Install Dashers Finance Manager</strong>
+        <p>Get quick access and offline support — install to your device.</p>
+      </div>
+      <div class="install-actions">
+        <button id="installBtn" class="button">Install</button>
+        <button id="installDismiss" class="button red">Dismiss</button>
+      </div>
+    </div>
+  </div>
+  <div style="position: fixed; top: 10px; right: 10px; z-index: 10000; display: none;" id="debugPWA">
+    <button onclick="checkPWAStatus()" style="background: #ff4444; color: white; border: none; padding: 5px 10px; border-radius: 3px; font-size: 12px;">Check PWA</button>
+  </div>
+
+  <script>
+    const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+    const isAndroid = /Android/.test(navigator.userAgent);
+
+
+    // ✅ Register service worker (path relative to <base>)
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('./serviceWorker.js', { scope: './' })
+        .then((reg) => {
+        })
+        .catch((err) => console.error('❌ SW registration failed:', err));
+    }
+
+    // Android install prompt (only for Android)
+    if (isAndroid) {
+      window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        window.deferredPrompt = e;
+        setTimeout(() => {
+          const banner = document.getElementById('installBanner');
+          if (banner) banner.classList.remove('hidden');
+        }, 2000);
+      });
+    }
+
+    function showIOSInstallGuide() {
+      const guide = document.getElementById('iosInstallGuide');
+      if (guide && !localStorage.getItem('iosGuideDismissed')) {
+        guide.classList.add('show');
+      }
+    }
+    function hideIOSInstallGuide() {
+      const guide = document.getElementById('iosInstallGuide');
+      if (guide) {
+        guide.classList.remove('show');
+        localStorage.setItem('iosGuideDismissed', 'true');
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      const closeBtn = document.getElementById('closeIosGuide');
+      if (closeBtn) closeBtn.addEventListener('click', hideIOSInstallGuide);
+
+      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+      if (isIOS) {
+        let guideShown = false;
+        const showGuideOnInteraction = function() {
+          if (!guideShown) {
+            setTimeout(showIOSInstallGuide, 1000);
+            guideShown = true;
+          }
+        };
+        document.addEventListener('touchstart', showGuideOnInteraction, { once: true, passive: true });
+        document.addEventListener('click', showGuideOnInteraction, { once: true, passive: true });
+      }
+
+      const installBtn = document.getElementById('installBtn');
+      if (installBtn && isAndroid) {
+        installBtn.addEventListener('click', async () => {
+          if (!window.deferredPrompt) return;
+          window.deferredPrompt.prompt();
+          await window.deferredPrompt.userChoice;
+          window.deferredPrompt = null;
+          document.getElementById('installBanner').classList.add('hidden');
+        });
+      }
+
+      const installDismiss = document.getElementById('installDismiss');
+      if (installDismiss) {
+        installDismiss.addEventListener('click', () => {
+          const banner = document.getElementById('installBanner');
+          if (banner) banner.classList.add('hidden');
+        });
+      }
+    });
+
+    if (isAndroid) {
+      setTimeout(() => {
+        if (!window.deferredPrompt) {
+        }
+      }, 5000);
+    }
+  </script>
+
+  <!-- iOS Installation Guide -->
+  <div id="iosInstallGuide" class="ios-install-guide">
+    <div class="ios-install-content">
+      <h3>📱 Install Dashers Finance Manager on iOS</h3>
+      <ol class="ios-install-steps">
+        <li><span class="icon">①</span> Tap the <strong>Share</strong> button <span style="display:inline-block; background:#007AFF; color:white; padding:2px 8px; border-radius:4px;">⎔</span></li>
+        <li><span class="icon">②</span> Scroll down and tap <strong>"Add to Home Screen"</strong></li>
+        <li><span class="icon">③</span> Tap <strong>"Add"</strong> in the top right</li>
+      </ol>
+      <button id="closeIosGuide" class="button" style="margin-top: 10px;">Got It!</button>
+    </div>
+  </div>
+<!--<script type="module" src="./js/ui.js"></script>-->
+</body>
+</html>
